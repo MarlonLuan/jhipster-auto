@@ -42,10 +42,10 @@ describe('Component Tests', () => {
     describe('ngOnInit', () => {
       it('Should call region query and add missing value', () => {
         const country: ICountry = { id: '1361f429-3817-4123-8ee3-fdf8943310b2' };
-        const region: IRegion = { id: '8e451f8a-9ca1-4d39-a4c4-55242a02e2dc' };
+        const region: IRegion = { id: 'e451f8a9-ca1d-4392-8c45-5242a02e2dc0' };
         country.region = region;
 
-        const regionCollection: IRegion[] = [{ id: '05d26045-feba-4014-89a1-0dab343dff29' }];
+        const regionCollection: IRegion[] = [{ id: '5d26045f-eba0-4140-9a10-dab343dff294' }];
         spyOn(regionService, 'query').and.returnValue(of(new HttpResponse({ body: regionCollection })));
         const expectedCollection: IRegion[] = [region, ...regionCollection];
         spyOn(regionService, 'addRegionToCollectionIfMissing').and.returnValue(expectedCollection);
@@ -60,7 +60,7 @@ describe('Component Tests', () => {
 
       it('Should update editForm', () => {
         const country: ICountry = { id: '1361f429-3817-4123-8ee3-fdf8943310b2' };
-        const region: IRegion = { id: '49bd7001-915c-4510-aed4-58e28c32aceb' };
+        const region: IRegion = { id: '9bd70019-15c5-410a-ad45-8e28c32aceb3' };
         country.region = region;
 
         activatedRoute.data = of({ country });

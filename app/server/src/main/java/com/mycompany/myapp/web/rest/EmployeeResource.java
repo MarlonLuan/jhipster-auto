@@ -102,8 +102,9 @@ public class EmployeeResource {
     }
 
     /**
-     * {@code PATCH  /employees} : Updates given fields of an existing employee.
+     * {@code PATCH  /employees/:id} : Partial updates given fields of an existing employee, field will ignore if it is null
      *
+     * @param id the id of the employeeDTO to save.
      * @param employeeDTO the employeeDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated employeeDTO,
      * or with status {@code 400 (Bad Request)} if the employeeDTO is not valid,
@@ -111,11 +112,21 @@ public class EmployeeResource {
      * or with status {@code 500 (Internal Server Error)} if the employeeDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/employees", consumes = "application/merge-patch+json")
-    public ResponseEntity<EmployeeDTO> partialUpdateEmployee(@RequestBody EmployeeDTO employeeDTO) throws URISyntaxException {
-        log.debug("REST request to update Employee partially : {}", employeeDTO);
+    @PatchMapping(value = "/employees/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<EmployeeDTO> partialUpdateEmployee(
+        @PathVariable(value = "id", required = false) final UUID id,
+        @RequestBody EmployeeDTO employeeDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update Employee partially : {}, {}", id, employeeDTO);
         if (employeeDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, employeeDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!employeeRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<EmployeeDTO> result = employeeService.partialUpdate(employeeDTO);

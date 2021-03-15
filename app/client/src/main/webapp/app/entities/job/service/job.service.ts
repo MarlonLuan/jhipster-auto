@@ -24,6 +24,10 @@ export class JobService {
     return this.http.put<IJob>(`${this.resourceUrl}/${getJobIdentifier(job) as string}`, job, { observe: 'response' });
   }
 
+  partialUpdate(job: IJob): Observable<EntityResponseType> {
+    return this.http.patch<IJob>(`${this.resourceUrl}/${getJobIdentifier(job) as string}`, job, { observe: 'response' });
+  }
+
   find(id: string): Observable<EntityResponseType> {
     return this.http.get<IJob>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }

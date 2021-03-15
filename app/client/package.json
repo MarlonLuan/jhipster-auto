@@ -62,7 +62,7 @@
   "devDependencies": {
     "@angular-builders/custom-webpack": "11.1.1",
     "@angular-builders/jest": "11.1.1",
-    "@angular-eslint/eslint-plugin": "1.2.0",
+    "@angular-eslint/eslint-plugin": "2.0.1",
     "@angular/cli": "11.2.4",
     "@angular/compiler-cli": "11.2.5",
     "@angular/service-worker": "11.2.5",
@@ -97,7 +97,7 @@
     "webpack-notifier": "1.13.0"
   },
   "engines": {
-    "node": ">=14.15.0"
+    "node": ">=14.16.0"
   },
   "cacheDirectories": [
     "node_modules"

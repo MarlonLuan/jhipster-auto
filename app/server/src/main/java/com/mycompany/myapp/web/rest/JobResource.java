@@ -100,8 +100,9 @@ public class JobResource {
     }
 
     /**
-     * {@code PATCH  /jobs} : Updates given fields of an existing job.
+     * {@code PATCH  /jobs/:id} : Partial updates given fields of an existing job, field will ignore if it is null
      *
+     * @param id the id of the jobDTO to save.
      * @param jobDTO the jobDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated jobDTO,
      * or with status {@code 400 (Bad Request)} if the jobDTO is not valid,
@@ -109,11 +110,19 @@ public class JobResource {
      * or with status {@code 500 (Internal Server Error)} if the jobDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/jobs", consumes = "application/merge-patch+json")
-    public ResponseEntity<JobDTO> partialUpdateJob(@RequestBody JobDTO jobDTO) throws URISyntaxException {
-        log.debug("REST request to update Job partially : {}", jobDTO);
+    @PatchMapping(value = "/jobs/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<JobDTO> partialUpdateJob(@PathVariable(value = "id", required = false) final UUID id, @RequestBody JobDTO jobDTO)
+        throws URISyntaxException {
+        log.debug("REST request to partial update Job partially : {}, {}", id, jobDTO);
         if (jobDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, jobDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!jobRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<JobDTO> result = jobService.partialUpdate(jobDTO);

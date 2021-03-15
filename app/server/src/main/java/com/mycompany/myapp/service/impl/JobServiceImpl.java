@@ -48,18 +48,7 @@ public class JobServiceImpl implements JobService {
             .findById(jobDTO.getId())
             .map(
                 existingJob -> {
-                    if (jobDTO.getJobTitle() != null) {
-                        existingJob.setJobTitle(jobDTO.getJobTitle());
-                    }
-
-                    if (jobDTO.getMinSalary() != null) {
-                        existingJob.setMinSalary(jobDTO.getMinSalary());
-                    }
-
-                    if (jobDTO.getMaxSalary() != null) {
-                        existingJob.setMaxSalary(jobDTO.getMaxSalary());
-                    }
-
+                    jobMapper.partialUpdate(existingJob, jobDTO);
                     return existingJob;
                 }
             )

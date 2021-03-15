@@ -104,6 +104,34 @@ describe('Service Tests', () => {
         expect(expectedResult).toMatchObject(expected);
       });
 
+      it('should partial update a Employee', () => {
+        const patchObject = Object.assign(
+          {
+            firstName: 'BBBBBB',
+            lastName: 'BBBBBB',
+            email: 'BBBBBB',
+            phoneNumber: 'BBBBBB',
+            salary: 1,
+          },
+          new Employee()
+        );
+
+        const returnedFromService = Object.assign(patchObject, elemDefault);
+
+        const expected = Object.assign(
+          {
+            hireDate: currentDate,
+          },
+          returnedFromService
+        );
+
+        service.partialUpdate(patchObject).subscribe(resp => (expectedResult = resp.body));
+
+        const req = httpMock.expectOne({ method: 'PATCH' });
+        req.flush(returnedFromService);
+        expect(expectedResult).toMatchObject(expected);
+      });
+
       it('should return a list of Employee', () => {
         const returnedFromService = Object.assign(
           {
@@ -174,7 +202,7 @@ describe('Service Tests', () => {
           const employeeArray: IEmployee[] = [
             { id: '9fec3727-3421-4967-b213-ba36557ca194' },
             { id: '1361f429-3817-4123-8ee3-fdf8943310b2' },
-            { id: 'aba97c1c-96b4-4a52-8b72-a185512a691c' },
+            { id: 'c96b4a52-4b72-4a18-9512-a691c3fd1049' },
           ];
           const employeeCollection: IEmployee[] = [{ id: '9fec3727-3421-4967-b213-ba36557ca194' }];
           expectedResult = service.addEmployeeToCollectionIfMissing(employeeCollection, ...employeeArray);

@@ -74,6 +74,26 @@ describe('Service Tests', () => {
         expect(expectedResult).toMatchObject(expected);
       });
 
+      it('should partial update a Task', () => {
+        const patchObject = Object.assign(
+          {
+            title: 'BBBBBB',
+            description: 'BBBBBB',
+          },
+          new Task()
+        );
+
+        const returnedFromService = Object.assign(patchObject, elemDefault);
+
+        const expected = Object.assign({}, returnedFromService);
+
+        service.partialUpdate(patchObject).subscribe(resp => (expectedResult = resp.body));
+
+        const req = httpMock.expectOne({ method: 'PATCH' });
+        req.flush(returnedFromService);
+        expect(expectedResult).toMatchObject(expected);
+      });
+
       it('should return a list of Task', () => {
         const returnedFromService = Object.assign(
           {
@@ -134,7 +154,7 @@ describe('Service Tests', () => {
           const taskArray: ITask[] = [
             { id: '9fec3727-3421-4967-b213-ba36557ca194' },
             { id: '1361f429-3817-4123-8ee3-fdf8943310b2' },
-            { id: 'ca5a8135-f7fa-4a24-9ea9-206f0a0a5429' },
+            { id: '5a8135f7-faa2-449e-a920-6f0a0a5429c4' },
           ];
           const taskCollection: ITask[] = [{ id: '9fec3727-3421-4967-b213-ba36557ca194' }];
           expectedResult = service.addTaskToCollectionIfMissing(taskCollection, ...taskArray);

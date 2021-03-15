@@ -102,8 +102,9 @@ public class RegionResource {
     }
 
     /**
-     * {@code PATCH  /regions} : Updates given fields of an existing region.
+     * {@code PATCH  /regions/:id} : Partial updates given fields of an existing region, field will ignore if it is null
      *
+     * @param id the id of the regionDTO to save.
      * @param regionDTO the regionDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated regionDTO,
      * or with status {@code 400 (Bad Request)} if the regionDTO is not valid,
@@ -111,11 +112,21 @@ public class RegionResource {
      * or with status {@code 500 (Internal Server Error)} if the regionDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/regions", consumes = "application/merge-patch+json")
-    public ResponseEntity<RegionDTO> partialUpdateRegion(@RequestBody RegionDTO regionDTO) throws URISyntaxException {
-        log.debug("REST request to update Region partially : {}", regionDTO);
+    @PatchMapping(value = "/regions/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<RegionDTO> partialUpdateRegion(
+        @PathVariable(value = "id", required = false) final UUID id,
+        @RequestBody RegionDTO regionDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update Region partially : {}, {}", id, regionDTO);
         if (regionDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, regionDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!regionRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<RegionDTO> result = regionService.partialUpdate(regionDTO);

@@ -48,34 +48,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             .findById(employeeDTO.getId())
             .map(
                 existingEmployee -> {
-                    if (employeeDTO.getFirstName() != null) {
-                        existingEmployee.setFirstName(employeeDTO.getFirstName());
-                    }
-
-                    if (employeeDTO.getLastName() != null) {
-                        existingEmployee.setLastName(employeeDTO.getLastName());
-                    }
-
-                    if (employeeDTO.getEmail() != null) {
-                        existingEmployee.setEmail(employeeDTO.getEmail());
-                    }
-
-                    if (employeeDTO.getPhoneNumber() != null) {
-                        existingEmployee.setPhoneNumber(employeeDTO.getPhoneNumber());
-                    }
-
-                    if (employeeDTO.getHireDate() != null) {
-                        existingEmployee.setHireDate(employeeDTO.getHireDate());
-                    }
-
-                    if (employeeDTO.getSalary() != null) {
-                        existingEmployee.setSalary(employeeDTO.getSalary());
-                    }
-
-                    if (employeeDTO.getCommissionPct() != null) {
-                        existingEmployee.setCommissionPct(employeeDTO.getCommissionPct());
-                    }
-
+                    employeeMapper.partialUpdate(existingEmployee, employeeDTO);
                     return existingEmployee;
                 }
             )

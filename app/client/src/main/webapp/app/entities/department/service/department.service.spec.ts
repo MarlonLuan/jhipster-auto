@@ -72,6 +72,20 @@ describe('Service Tests', () => {
         expect(expectedResult).toMatchObject(expected);
       });
 
+      it('should partial update a Department', () => {
+        const patchObject = Object.assign({}, new Department());
+
+        const returnedFromService = Object.assign(patchObject, elemDefault);
+
+        const expected = Object.assign({}, returnedFromService);
+
+        service.partialUpdate(patchObject).subscribe(resp => (expectedResult = resp.body));
+
+        const req = httpMock.expectOne({ method: 'PATCH' });
+        req.flush(returnedFromService);
+        expect(expectedResult).toMatchObject(expected);
+      });
+
       it('should return a list of Department', () => {
         const returnedFromService = Object.assign(
           {
@@ -131,7 +145,7 @@ describe('Service Tests', () => {
           const departmentArray: IDepartment[] = [
             { id: '9fec3727-3421-4967-b213-ba36557ca194' },
             { id: '1361f429-3817-4123-8ee3-fdf8943310b2' },
-            { id: '33f7bcbb-bd40-4698-9405-6d34c452ae03' },
+            { id: '3f7bcbbb-d406-4985-8056-d34c452ae031' },
           ];
           const departmentCollection: IDepartment[] = [{ id: '9fec3727-3421-4967-b213-ba36557ca194' }];
           expectedResult = service.addDepartmentToCollectionIfMissing(departmentCollection, ...departmentArray);

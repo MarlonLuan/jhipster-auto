@@ -24,6 +24,10 @@ export class CountryService {
     return this.http.put<ICountry>(`${this.resourceUrl}/${getCountryIdentifier(country) as string}`, country, { observe: 'response' });
   }
 
+  partialUpdate(country: ICountry): Observable<EntityResponseType> {
+    return this.http.patch<ICountry>(`${this.resourceUrl}/${getCountryIdentifier(country) as string}`, country, { observe: 'response' });
+  }
+
   find(id: string): Observable<EntityResponseType> {
     return this.http.get<ICountry>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }

@@ -102,8 +102,9 @@ public class CountryResource {
     }
 
     /**
-     * {@code PATCH  /countries} : Updates given fields of an existing country.
+     * {@code PATCH  /countries/:id} : Partial updates given fields of an existing country, field will ignore if it is null
      *
+     * @param id the id of the countryDTO to save.
      * @param countryDTO the countryDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated countryDTO,
      * or with status {@code 400 (Bad Request)} if the countryDTO is not valid,
@@ -111,11 +112,21 @@ public class CountryResource {
      * or with status {@code 500 (Internal Server Error)} if the countryDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/countries", consumes = "application/merge-patch+json")
-    public ResponseEntity<CountryDTO> partialUpdateCountry(@RequestBody CountryDTO countryDTO) throws URISyntaxException {
-        log.debug("REST request to update Country partially : {}", countryDTO);
+    @PatchMapping(value = "/countries/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<CountryDTO> partialUpdateCountry(
+        @PathVariable(value = "id", required = false) final UUID id,
+        @RequestBody CountryDTO countryDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update Country partially : {}, {}", id, countryDTO);
         if (countryDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, countryDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!countryRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<CountryDTO> result = countryService.partialUpdate(countryDTO);

@@ -48,10 +48,7 @@ public class DepartmentServiceImpl implements DepartmentService {
             .findById(departmentDTO.getId())
             .map(
                 existingDepartment -> {
-                    if (departmentDTO.getDepartmentName() != null) {
-                        existingDepartment.setDepartmentName(departmentDTO.getDepartmentName());
-                    }
-
+                    departmentMapper.partialUpdate(existingDepartment, departmentDTO);
                     return existingDepartment;
                 }
             )
