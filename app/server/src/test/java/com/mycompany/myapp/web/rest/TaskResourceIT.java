@@ -284,7 +284,7 @@ class TaskResourceIT {
 
         restTaskMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedTask.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedTask))
@@ -315,7 +315,7 @@ class TaskResourceIT {
 
         restTaskMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedTask.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedTask))
@@ -332,18 +332,74 @@ class TaskResourceIT {
 
     @Test
     @Transactional
-    void partialUpdateTaskShouldThrown() throws Exception {
-        // Update the task without id should throw
-        Task partialUpdatedTask = new Task();
+    void patchNonExistingTask() throws Exception {
+        int databaseSizeBeforeUpdate = taskRepository.findAll().size();
+        task.setId(UUID.randomUUID());
 
+        // Create the Task
+        TaskDTO taskDTO = taskMapper.toDto(task);
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restTaskMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, taskDTO.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(taskDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Task in the database
+        List<Task> taskList = taskRepository.findAll();
+        assertThat(taskList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchTask() throws Exception {
+        int databaseSizeBeforeUpdate = taskRepository.findAll().size();
+        task.setId(UUID.randomUUID());
+
+        // Create the Task
+        TaskDTO taskDTO = taskMapper.toDto(task);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restTaskMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, UUID.randomUUID())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(taskDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Task in the database
+        List<Task> taskList = taskRepository.findAll();
+        assertThat(taskList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamTask() throws Exception {
+        int databaseSizeBeforeUpdate = taskRepository.findAll().size();
+        task.setId(UUID.randomUUID());
+
+        // Create the Task
+        TaskDTO taskDTO = taskMapper.toDto(task);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restTaskMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .with(csrf())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedTask))
+                    .content(TestUtil.convertObjectToJsonBytes(taskDTO))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Task in the database
+        List<Task> taskList = taskRepository.findAll();
+        assertThat(taskList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test

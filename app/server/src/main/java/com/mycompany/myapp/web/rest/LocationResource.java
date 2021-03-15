@@ -102,8 +102,9 @@ public class LocationResource {
     }
 
     /**
-     * {@code PATCH  /locations} : Updates given fields of an existing location.
+     * {@code PATCH  /locations/:id} : Partial updates given fields of an existing location, field will ignore if it is null
      *
+     * @param id the id of the locationDTO to save.
      * @param locationDTO the locationDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated locationDTO,
      * or with status {@code 400 (Bad Request)} if the locationDTO is not valid,
@@ -111,11 +112,21 @@ public class LocationResource {
      * or with status {@code 500 (Internal Server Error)} if the locationDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/locations", consumes = "application/merge-patch+json")
-    public ResponseEntity<LocationDTO> partialUpdateLocation(@RequestBody LocationDTO locationDTO) throws URISyntaxException {
-        log.debug("REST request to update Location partially : {}", locationDTO);
+    @PatchMapping(value = "/locations/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<LocationDTO> partialUpdateLocation(
+        @PathVariable(value = "id", required = false) final UUID id,
+        @RequestBody LocationDTO locationDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update Location partially : {}, {}", id, locationDTO);
         if (locationDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, locationDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!locationRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<LocationDTO> result = locationService.partialUpdate(locationDTO);

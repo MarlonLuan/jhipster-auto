@@ -42,10 +42,10 @@ describe('Component Tests', () => {
     describe('ngOnInit', () => {
       it('Should call Employee query and add missing value', () => {
         const employee: IEmployee = { id: '1361f429-3817-4123-8ee3-fdf8943310b2' };
-        const manager: IEmployee = { id: '3fd10494-217e-4bba-94d0-577762c521e8' };
+        const manager: IEmployee = { id: '4217ebba-94d0-4577-b62c-521e8d85e580' };
         employee.manager = manager;
 
-        const employeeCollection: IEmployee[] = [{ id: 'd85e5802-8cf8-4277-a250-135af2ba8755' }];
+        const employeeCollection: IEmployee[] = [{ id: '28cf8277-2250-4135-af2b-a8755feca232' }];
         spyOn(employeeService, 'query').and.returnValue(of(new HttpResponse({ body: employeeCollection })));
         const additionalEmployees = [manager];
         const expectedCollection: IEmployee[] = [...additionalEmployees, ...employeeCollection];
@@ -61,10 +61,10 @@ describe('Component Tests', () => {
 
       it('Should call Department query and add missing value', () => {
         const employee: IEmployee = { id: '1361f429-3817-4123-8ee3-fdf8943310b2' };
-        const department: IDepartment = { id: 'feca2329-8f2b-4642-b5f8-a873f614018a' };
+        const department: IDepartment = { id: '98f2b642-f5f8-4a87-bf61-4018a8f83010' };
         employee.department = department;
 
-        const departmentCollection: IDepartment[] = [{ id: '8f830103-adb6-42ca-b233-26ed0b3233cc' }];
+        const departmentCollection: IDepartment[] = [{ id: '3adb62ca-f233-426e-90b3-233cc0736c90' }];
         spyOn(departmentService, 'query').and.returnValue(of(new HttpResponse({ body: departmentCollection })));
         const additionalDepartments = [department];
         const expectedCollection: IDepartment[] = [...additionalDepartments, ...departmentCollection];
@@ -80,9 +80,9 @@ describe('Component Tests', () => {
 
       it('Should update editForm', () => {
         const employee: IEmployee = { id: '1361f429-3817-4123-8ee3-fdf8943310b2' };
-        const manager: IEmployee = { id: '0736c909-910e-4512-93a6-20a12ae824e9' };
+        const manager: IEmployee = { id: '9910e512-53a6-420a-92ae-824e9f1b7207' };
         employee.manager = manager;
-        const department: IDepartment = { id: 'f1b72071-9865-4a88-bae6-32c6364a8ab1' };
+        const department: IDepartment = { id: '19865a88-3ae6-432c-a364-a8ab140a093e' };
         employee.department = department;
 
         activatedRoute.data = of({ employee });

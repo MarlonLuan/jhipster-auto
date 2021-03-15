@@ -48,22 +48,7 @@ public class LocationServiceImpl implements LocationService {
             .findById(locationDTO.getId())
             .map(
                 existingLocation -> {
-                    if (locationDTO.getStreetAddress() != null) {
-                        existingLocation.setStreetAddress(locationDTO.getStreetAddress());
-                    }
-
-                    if (locationDTO.getPostalCode() != null) {
-                        existingLocation.setPostalCode(locationDTO.getPostalCode());
-                    }
-
-                    if (locationDTO.getCity() != null) {
-                        existingLocation.setCity(locationDTO.getCity());
-                    }
-
-                    if (locationDTO.getStateProvince() != null) {
-                        existingLocation.setStateProvince(locationDTO.getStateProvince());
-                    }
-
+                    locationMapper.partialUpdate(existingLocation, locationDTO);
                     return existingLocation;
                 }
             )

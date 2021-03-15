@@ -24,6 +24,12 @@ export class LocationService {
     return this.http.put<ILocation>(`${this.resourceUrl}/${getLocationIdentifier(location) as string}`, location, { observe: 'response' });
   }
 
+  partialUpdate(location: ILocation): Observable<EntityResponseType> {
+    return this.http.patch<ILocation>(`${this.resourceUrl}/${getLocationIdentifier(location) as string}`, location, {
+      observe: 'response',
+    });
+  }
+
   find(id: string): Observable<EntityResponseType> {
     return this.http.get<ILocation>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }

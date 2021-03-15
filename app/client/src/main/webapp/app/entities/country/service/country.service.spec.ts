@@ -72,6 +72,25 @@ describe('Service Tests', () => {
         expect(expectedResult).toMatchObject(expected);
       });
 
+      it('should partial update a Country', () => {
+        const patchObject = Object.assign(
+          {
+            countryName: 'BBBBBB',
+          },
+          new Country()
+        );
+
+        const returnedFromService = Object.assign(patchObject, elemDefault);
+
+        const expected = Object.assign({}, returnedFromService);
+
+        service.partialUpdate(patchObject).subscribe(resp => (expectedResult = resp.body));
+
+        const req = httpMock.expectOne({ method: 'PATCH' });
+        req.flush(returnedFromService);
+        expect(expectedResult).toMatchObject(expected);
+      });
+
       it('should return a list of Country', () => {
         const returnedFromService = Object.assign(
           {
@@ -131,7 +150,7 @@ describe('Service Tests', () => {
           const countryArray: ICountry[] = [
             { id: '9fec3727-3421-4967-b213-ba36557ca194' },
             { id: '1361f429-3817-4123-8ee3-fdf8943310b2' },
-            { id: 'd67d0ef1-e757-46c4-8bbb-604008619f44' },
+            { id: '67d0ef1e-7576-4c4c-bbb6-04008619f448' },
           ];
           const countryCollection: ICountry[] = [{ id: '9fec3727-3421-4967-b213-ba36557ca194' }];
           expectedResult = service.addCountryToCollectionIfMissing(countryCollection, ...countryArray);

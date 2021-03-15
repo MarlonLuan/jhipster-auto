@@ -2,8 +2,6 @@ package com.mycompany.myapp.service.mapper;
 
 import com.mycompany.myapp.domain.*;
 import com.mycompany.myapp.service.dto.JobHistoryDTO;
-import java.util.Objects;
-import java.util.UUID;
 import org.mapstruct.*;
 
 /**
@@ -15,8 +13,4 @@ public interface JobHistoryMapper extends EntityMapper<JobHistoryDTO, JobHistory
     @Mapping(target = "department", source = "department", qualifiedByName = "id")
     @Mapping(target = "employee", source = "employee", qualifiedByName = "id")
     JobHistoryDTO toDto(JobHistory s);
-
-    default String map(UUID value) {
-        return Objects.toString(value, null);
-    }
 }

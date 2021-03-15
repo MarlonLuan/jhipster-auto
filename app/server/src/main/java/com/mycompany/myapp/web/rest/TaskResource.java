@@ -100,8 +100,9 @@ public class TaskResource {
     }
 
     /**
-     * {@code PATCH  /tasks} : Updates given fields of an existing task.
+     * {@code PATCH  /tasks/:id} : Partial updates given fields of an existing task, field will ignore if it is null
      *
+     * @param id the id of the taskDTO to save.
      * @param taskDTO the taskDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated taskDTO,
      * or with status {@code 400 (Bad Request)} if the taskDTO is not valid,
@@ -109,11 +110,21 @@ public class TaskResource {
      * or with status {@code 500 (Internal Server Error)} if the taskDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/tasks", consumes = "application/merge-patch+json")
-    public ResponseEntity<TaskDTO> partialUpdateTask(@RequestBody TaskDTO taskDTO) throws URISyntaxException {
-        log.debug("REST request to update Task partially : {}", taskDTO);
+    @PatchMapping(value = "/tasks/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<TaskDTO> partialUpdateTask(
+        @PathVariable(value = "id", required = false) final UUID id,
+        @RequestBody TaskDTO taskDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update Task partially : {}, {}", id, taskDTO);
         if (taskDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, taskDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!taskRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<TaskDTO> result = taskService.partialUpdate(taskDTO);

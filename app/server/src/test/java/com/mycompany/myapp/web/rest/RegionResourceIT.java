@@ -278,7 +278,7 @@ class RegionResourceIT {
 
         restRegionMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedRegion.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedRegion))
@@ -308,7 +308,7 @@ class RegionResourceIT {
 
         restRegionMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedRegion.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedRegion))
@@ -324,18 +324,74 @@ class RegionResourceIT {
 
     @Test
     @Transactional
-    void partialUpdateRegionShouldThrown() throws Exception {
-        // Update the region without id should throw
-        Region partialUpdatedRegion = new Region();
+    void patchNonExistingRegion() throws Exception {
+        int databaseSizeBeforeUpdate = regionRepository.findAll().size();
+        region.setId(UUID.randomUUID());
 
+        // Create the Region
+        RegionDTO regionDTO = regionMapper.toDto(region);
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restRegionMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, regionDTO.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(regionDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Region in the database
+        List<Region> regionList = regionRepository.findAll();
+        assertThat(regionList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchRegion() throws Exception {
+        int databaseSizeBeforeUpdate = regionRepository.findAll().size();
+        region.setId(UUID.randomUUID());
+
+        // Create the Region
+        RegionDTO regionDTO = regionMapper.toDto(region);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restRegionMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, UUID.randomUUID())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(regionDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Region in the database
+        List<Region> regionList = regionRepository.findAll();
+        assertThat(regionList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamRegion() throws Exception {
+        int databaseSizeBeforeUpdate = regionRepository.findAll().size();
+        region.setId(UUID.randomUUID());
+
+        // Create the Region
+        RegionDTO regionDTO = regionMapper.toDto(region);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restRegionMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .with(csrf())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedRegion))
+                    .content(TestUtil.convertObjectToJsonBytes(regionDTO))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Region in the database
+        List<Region> regionList = regionRepository.findAll();
+        assertThat(regionList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test

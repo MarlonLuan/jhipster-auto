@@ -71,9 +71,9 @@ export class JobUpdateComponent implements OnInit {
 
   getSelectedTask(option: ITask, selectedVals?: ITask[]): ITask {
     if (selectedVals) {
-      for (let i = 0; i < selectedVals.length; i++) {
-        if (option.id === selectedVals[i].id) {
-          return selectedVals[i];
+      for (const selectedVal of selectedVals) {
+        if (option.id === selectedVal.id) {
+          return selectedVal;
         }
       }
     }

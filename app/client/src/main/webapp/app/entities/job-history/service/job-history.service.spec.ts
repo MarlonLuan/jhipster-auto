@@ -101,6 +101,31 @@ describe('Service Tests', () => {
         expect(expectedResult).toMatchObject(expected);
       });
 
+      it('should partial update a JobHistory', () => {
+        const patchObject = Object.assign(
+          {
+            language: 'BBBBBB',
+          },
+          new JobHistory()
+        );
+
+        const returnedFromService = Object.assign(patchObject, elemDefault);
+
+        const expected = Object.assign(
+          {
+            startDate: currentDate,
+            endDate: currentDate,
+          },
+          returnedFromService
+        );
+
+        service.partialUpdate(patchObject).subscribe(resp => (expectedResult = resp.body));
+
+        const req = httpMock.expectOne({ method: 'PATCH' });
+        req.flush(returnedFromService);
+        expect(expectedResult).toMatchObject(expected);
+      });
+
       it('should return a list of JobHistory', () => {
         const returnedFromService = Object.assign(
           {
@@ -168,7 +193,7 @@ describe('Service Tests', () => {
           const jobHistoryArray: IJobHistory[] = [
             { id: '9fec3727-3421-4967-b213-ba36557ca194' },
             { id: '1361f429-3817-4123-8ee3-fdf8943310b2' },
-            { id: '239b545d-e2e3-40b6-a0d4-d4bd3a24d234' },
+            { id: 'b545de2e-30b6-4a0d-8d4b-d3a24d234137' },
           ];
           const jobHistoryCollection: IJobHistory[] = [{ id: '9fec3727-3421-4967-b213-ba36557ca194' }];
           expectedResult = service.addJobHistoryToCollectionIfMissing(jobHistoryCollection, ...jobHistoryArray);

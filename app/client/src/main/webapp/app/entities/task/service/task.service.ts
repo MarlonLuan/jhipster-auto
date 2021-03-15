@@ -24,6 +24,10 @@ export class TaskService {
     return this.http.put<ITask>(`${this.resourceUrl}/${getTaskIdentifier(task) as string}`, task, { observe: 'response' });
   }
 
+  partialUpdate(task: ITask): Observable<EntityResponseType> {
+    return this.http.patch<ITask>(`${this.resourceUrl}/${getTaskIdentifier(task) as string}`, task, { observe: 'response' });
+  }
+
   find(id: string): Observable<EntityResponseType> {
     return this.http.get<ITask>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }

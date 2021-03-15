@@ -318,7 +318,7 @@ class JobResourceIT {
 
         restJobMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedJob.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedJob))
@@ -350,7 +350,7 @@ class JobResourceIT {
 
         restJobMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedJob.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedJob))
@@ -368,18 +368,74 @@ class JobResourceIT {
 
     @Test
     @Transactional
-    void partialUpdateJobShouldThrown() throws Exception {
-        // Update the job without id should throw
-        Job partialUpdatedJob = new Job();
+    void patchNonExistingJob() throws Exception {
+        int databaseSizeBeforeUpdate = jobRepository.findAll().size();
+        job.setId(UUID.randomUUID());
 
+        // Create the Job
+        JobDTO jobDTO = jobMapper.toDto(job);
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restJobMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, jobDTO.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(jobDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Job in the database
+        List<Job> jobList = jobRepository.findAll();
+        assertThat(jobList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchJob() throws Exception {
+        int databaseSizeBeforeUpdate = jobRepository.findAll().size();
+        job.setId(UUID.randomUUID());
+
+        // Create the Job
+        JobDTO jobDTO = jobMapper.toDto(job);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restJobMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, UUID.randomUUID())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(jobDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Job in the database
+        List<Job> jobList = jobRepository.findAll();
+        assertThat(jobList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamJob() throws Exception {
+        int databaseSizeBeforeUpdate = jobRepository.findAll().size();
+        job.setId(UUID.randomUUID());
+
+        // Create the Job
+        JobDTO jobDTO = jobMapper.toDto(job);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restJobMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .with(csrf())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedJob))
+                    .content(TestUtil.convertObjectToJsonBytes(jobDTO))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Job in the database
+        List<Job> jobList = jobRepository.findAll();
+        assertThat(jobList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test

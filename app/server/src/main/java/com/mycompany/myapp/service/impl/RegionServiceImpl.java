@@ -48,10 +48,7 @@ public class RegionServiceImpl implements RegionService {
             .findById(regionDTO.getId())
             .map(
                 existingRegion -> {
-                    if (regionDTO.getRegionName() != null) {
-                        existingRegion.setRegionName(regionDTO.getRegionName());
-                    }
-
+                    regionMapper.partialUpdate(existingRegion, regionDTO);
                     return existingRegion;
                 }
             )

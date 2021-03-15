@@ -102,8 +102,9 @@ public class JobHistoryResource {
     }
 
     /**
-     * {@code PATCH  /job-histories} : Updates given fields of an existing jobHistory.
+     * {@code PATCH  /job-histories/:id} : Partial updates given fields of an existing jobHistory, field will ignore if it is null
      *
+     * @param id the id of the jobHistoryDTO to save.
      * @param jobHistoryDTO the jobHistoryDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated jobHistoryDTO,
      * or with status {@code 400 (Bad Request)} if the jobHistoryDTO is not valid,
@@ -111,11 +112,21 @@ public class JobHistoryResource {
      * or with status {@code 500 (Internal Server Error)} if the jobHistoryDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/job-histories", consumes = "application/merge-patch+json")
-    public ResponseEntity<JobHistoryDTO> partialUpdateJobHistory(@RequestBody JobHistoryDTO jobHistoryDTO) throws URISyntaxException {
-        log.debug("REST request to update JobHistory partially : {}", jobHistoryDTO);
+    @PatchMapping(value = "/job-histories/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<JobHistoryDTO> partialUpdateJobHistory(
+        @PathVariable(value = "id", required = false) final UUID id,
+        @RequestBody JobHistoryDTO jobHistoryDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update JobHistory partially : {}, {}", id, jobHistoryDTO);
         if (jobHistoryDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, jobHistoryDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!jobHistoryRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<JobHistoryDTO> result = jobHistoryService.partialUpdate(jobHistoryDTO);

@@ -76,6 +76,26 @@ describe('Service Tests', () => {
         expect(expectedResult).toMatchObject(expected);
       });
 
+      it('should partial update a Job', () => {
+        const patchObject = Object.assign(
+          {
+            jobTitle: 'BBBBBB',
+            minSalary: 1,
+          },
+          new Job()
+        );
+
+        const returnedFromService = Object.assign(patchObject, elemDefault);
+
+        const expected = Object.assign({}, returnedFromService);
+
+        service.partialUpdate(patchObject).subscribe(resp => (expectedResult = resp.body));
+
+        const req = httpMock.expectOne({ method: 'PATCH' });
+        req.flush(returnedFromService);
+        expect(expectedResult).toMatchObject(expected);
+      });
+
       it('should return a list of Job', () => {
         const returnedFromService = Object.assign(
           {
@@ -137,7 +157,7 @@ describe('Service Tests', () => {
           const jobArray: IJob[] = [
             { id: '9fec3727-3421-4967-b213-ba36557ca194' },
             { id: '1361f429-3817-4123-8ee3-fdf8943310b2' },
-            { id: 'a805f71d-bf9d-4246-9c2a-0705eab7224c' },
+            { id: '5f71dbf9-d246-49c2-a070-5eab7224c0c1' },
           ];
           const jobCollection: IJob[] = [{ id: '9fec3727-3421-4967-b213-ba36557ca194' }];
           expectedResult = service.addJobToCollectionIfMissing(jobCollection, ...jobArray);

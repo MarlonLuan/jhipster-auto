@@ -301,7 +301,7 @@ class DepartmentResourceIT {
 
         restDepartmentMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedDepartment.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedDepartment))
@@ -331,7 +331,7 @@ class DepartmentResourceIT {
 
         restDepartmentMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedDepartment.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedDepartment))
@@ -347,18 +347,74 @@ class DepartmentResourceIT {
 
     @Test
     @Transactional
-    void partialUpdateDepartmentShouldThrown() throws Exception {
-        // Update the department without id should throw
-        Department partialUpdatedDepartment = new Department();
+    void patchNonExistingDepartment() throws Exception {
+        int databaseSizeBeforeUpdate = departmentRepository.findAll().size();
+        department.setId(UUID.randomUUID());
 
+        // Create the Department
+        DepartmentDTO departmentDTO = departmentMapper.toDto(department);
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restDepartmentMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, departmentDTO.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(departmentDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Department in the database
+        List<Department> departmentList = departmentRepository.findAll();
+        assertThat(departmentList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchDepartment() throws Exception {
+        int databaseSizeBeforeUpdate = departmentRepository.findAll().size();
+        department.setId(UUID.randomUUID());
+
+        // Create the Department
+        DepartmentDTO departmentDTO = departmentMapper.toDto(department);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restDepartmentMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, UUID.randomUUID())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(departmentDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Department in the database
+        List<Department> departmentList = departmentRepository.findAll();
+        assertThat(departmentList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamDepartment() throws Exception {
+        int databaseSizeBeforeUpdate = departmentRepository.findAll().size();
+        department.setId(UUID.randomUUID());
+
+        // Create the Department
+        DepartmentDTO departmentDTO = departmentMapper.toDto(department);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restDepartmentMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .with(csrf())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedDepartment))
+                    .content(TestUtil.convertObjectToJsonBytes(departmentDTO))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Department in the database
+        List<Department> departmentList = departmentRepository.findAll();
+        assertThat(departmentList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test

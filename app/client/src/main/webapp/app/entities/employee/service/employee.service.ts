@@ -32,6 +32,13 @@ export class EmployeeService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
+  partialUpdate(employee: IEmployee): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(employee);
+    return this.http
+      .patch<IEmployee>(`${this.resourceUrl}/${getEmployeeIdentifier(employee) as string}`, copy, { observe: 'response' })
+      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  }
+
   find(id: string): Observable<EntityResponseType> {
     return this.http
       .get<IEmployee>(`${this.resourceUrl}/${id}`, { observe: 'response' })
@@ -67,10 +74,9 @@ export class EmployeeService {
   }
 
   protected convertDateFromClient(employee: IEmployee): IEmployee {
-    const copy: IEmployee = Object.assign({}, employee, {
+    return Object.assign({}, employee, {
       hireDate: employee.hireDate?.isValid() ? employee.hireDate.toJSON() : undefined,
     });
-    return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {

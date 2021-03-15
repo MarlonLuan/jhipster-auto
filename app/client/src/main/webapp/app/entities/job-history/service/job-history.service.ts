@@ -32,6 +32,13 @@ export class JobHistoryService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
+  partialUpdate(jobHistory: IJobHistory): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(jobHistory);
+    return this.http
+      .patch<IJobHistory>(`${this.resourceUrl}/${getJobHistoryIdentifier(jobHistory) as string}`, copy, { observe: 'response' })
+      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  }
+
   find(id: string): Observable<EntityResponseType> {
     return this.http
       .get<IJobHistory>(`${this.resourceUrl}/${id}`, { observe: 'response' })
@@ -70,11 +77,10 @@ export class JobHistoryService {
   }
 
   protected convertDateFromClient(jobHistory: IJobHistory): IJobHistory {
-    const copy: IJobHistory = Object.assign({}, jobHistory, {
+    return Object.assign({}, jobHistory, {
       startDate: jobHistory.startDate?.isValid() ? jobHistory.startDate.toJSON() : undefined,
       endDate: jobHistory.endDate?.isValid() ? jobHistory.endDate.toJSON() : undefined,
     });
-    return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {

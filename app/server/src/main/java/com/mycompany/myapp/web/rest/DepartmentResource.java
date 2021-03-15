@@ -104,8 +104,9 @@ public class DepartmentResource {
     }
 
     /**
-     * {@code PATCH  /departments} : Updates given fields of an existing department.
+     * {@code PATCH  /departments/:id} : Partial updates given fields of an existing department, field will ignore if it is null
      *
+     * @param id the id of the departmentDTO to save.
      * @param departmentDTO the departmentDTO to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated departmentDTO,
      * or with status {@code 400 (Bad Request)} if the departmentDTO is not valid,
@@ -113,12 +114,21 @@ public class DepartmentResource {
      * or with status {@code 500 (Internal Server Error)} if the departmentDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/departments", consumes = "application/merge-patch+json")
-    public ResponseEntity<DepartmentDTO> partialUpdateDepartment(@NotNull @RequestBody DepartmentDTO departmentDTO)
-        throws URISyntaxException {
-        log.debug("REST request to update Department partially : {}", departmentDTO);
+    @PatchMapping(value = "/departments/{id}", consumes = "application/merge-patch+json")
+    public ResponseEntity<DepartmentDTO> partialUpdateDepartment(
+        @PathVariable(value = "id", required = false) final UUID id,
+        @NotNull @RequestBody DepartmentDTO departmentDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to partial update Department partially : {}, {}", id, departmentDTO);
         if (departmentDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
+        }
+        if (!Objects.equals(id, departmentDTO.getId())) {
+            throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
+        }
+
+        if (!departmentRepository.existsById(id)) {
+            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
         Optional<DepartmentDTO> result = departmentService.partialUpdate(departmentDTO);

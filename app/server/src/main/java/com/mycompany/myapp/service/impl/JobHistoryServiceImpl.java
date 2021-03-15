@@ -48,18 +48,7 @@ public class JobHistoryServiceImpl implements JobHistoryService {
             .findById(jobHistoryDTO.getId())
             .map(
                 existingJobHistory -> {
-                    if (jobHistoryDTO.getStartDate() != null) {
-                        existingJobHistory.setStartDate(jobHistoryDTO.getStartDate());
-                    }
-
-                    if (jobHistoryDTO.getEndDate() != null) {
-                        existingJobHistory.setEndDate(jobHistoryDTO.getEndDate());
-                    }
-
-                    if (jobHistoryDTO.getLanguage() != null) {
-                        existingJobHistory.setLanguage(jobHistoryDTO.getLanguage());
-                    }
-
+                    jobHistoryMapper.partialUpdate(existingJobHistory, jobHistoryDTO);
                     return existingJobHistory;
                 }
             )

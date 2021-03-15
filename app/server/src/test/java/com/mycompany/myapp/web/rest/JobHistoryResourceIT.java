@@ -297,7 +297,7 @@ class JobHistoryResourceIT {
 
         restJobHistoryMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedJobHistory.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedJobHistory))
@@ -329,7 +329,7 @@ class JobHistoryResourceIT {
 
         restJobHistoryMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedJobHistory.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedJobHistory))
@@ -347,18 +347,74 @@ class JobHistoryResourceIT {
 
     @Test
     @Transactional
-    void partialUpdateJobHistoryShouldThrown() throws Exception {
-        // Update the jobHistory without id should throw
-        JobHistory partialUpdatedJobHistory = new JobHistory();
+    void patchNonExistingJobHistory() throws Exception {
+        int databaseSizeBeforeUpdate = jobHistoryRepository.findAll().size();
+        jobHistory.setId(UUID.randomUUID());
 
+        // Create the JobHistory
+        JobHistoryDTO jobHistoryDTO = jobHistoryMapper.toDto(jobHistory);
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restJobHistoryMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, jobHistoryDTO.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(jobHistoryDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the JobHistory in the database
+        List<JobHistory> jobHistoryList = jobHistoryRepository.findAll();
+        assertThat(jobHistoryList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchJobHistory() throws Exception {
+        int databaseSizeBeforeUpdate = jobHistoryRepository.findAll().size();
+        jobHistory.setId(UUID.randomUUID());
+
+        // Create the JobHistory
+        JobHistoryDTO jobHistoryDTO = jobHistoryMapper.toDto(jobHistory);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restJobHistoryMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, UUID.randomUUID())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(jobHistoryDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the JobHistory in the database
+        List<JobHistory> jobHistoryList = jobHistoryRepository.findAll();
+        assertThat(jobHistoryList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamJobHistory() throws Exception {
+        int databaseSizeBeforeUpdate = jobHistoryRepository.findAll().size();
+        jobHistory.setId(UUID.randomUUID());
+
+        // Create the JobHistory
+        JobHistoryDTO jobHistoryDTO = jobHistoryMapper.toDto(jobHistory);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restJobHistoryMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .with(csrf())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedJobHistory))
+                    .content(TestUtil.convertObjectToJsonBytes(jobHistoryDTO))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the JobHistory in the database
+        List<JobHistory> jobHistoryList = jobHistoryRepository.findAll();
+        assertThat(jobHistoryList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test

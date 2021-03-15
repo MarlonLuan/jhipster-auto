@@ -78,6 +78,26 @@ describe('Service Tests', () => {
         expect(expectedResult).toMatchObject(expected);
       });
 
+      it('should partial update a Location', () => {
+        const patchObject = Object.assign(
+          {
+            streetAddress: 'BBBBBB',
+            city: 'BBBBBB',
+          },
+          new Location()
+        );
+
+        const returnedFromService = Object.assign(patchObject, elemDefault);
+
+        const expected = Object.assign({}, returnedFromService);
+
+        service.partialUpdate(patchObject).subscribe(resp => (expectedResult = resp.body));
+
+        const req = httpMock.expectOne({ method: 'PATCH' });
+        req.flush(returnedFromService);
+        expect(expectedResult).toMatchObject(expected);
+      });
+
       it('should return a list of Location', () => {
         const returnedFromService = Object.assign(
           {
@@ -140,7 +160,7 @@ describe('Service Tests', () => {
           const locationArray: ILocation[] = [
             { id: '9fec3727-3421-4967-b213-ba36557ca194' },
             { id: '1361f429-3817-4123-8ee3-fdf8943310b2' },
-            { id: '83c6f07c-8cab-43a8-9025-6c92c5830c48' },
+            { id: 'f07c8cab-3a85-4025-ac92-c5830c485ebb' },
           ];
           const locationCollection: ILocation[] = [{ id: '9fec3727-3421-4967-b213-ba36557ca194' }];
           expectedResult = service.addLocationToCollectionIfMissing(locationCollection, ...locationArray);

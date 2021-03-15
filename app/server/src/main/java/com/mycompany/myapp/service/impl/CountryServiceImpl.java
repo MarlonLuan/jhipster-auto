@@ -48,10 +48,7 @@ public class CountryServiceImpl implements CountryService {
             .findById(countryDTO.getId())
             .map(
                 existingCountry -> {
-                    if (countryDTO.getCountryName() != null) {
-                        existingCountry.setCountryName(countryDTO.getCountryName());
-                    }
-
+                    countryMapper.partialUpdate(existingCountry, countryDTO);
                     return existingCountry;
                 }
             )

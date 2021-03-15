@@ -26,6 +26,12 @@ export class DepartmentService {
     });
   }
 
+  partialUpdate(department: IDepartment): Observable<EntityResponseType> {
+    return this.http.patch<IDepartment>(`${this.resourceUrl}/${getDepartmentIdentifier(department) as string}`, department, {
+      observe: 'response',
+    });
+  }
+
   find(id: string): Observable<EntityResponseType> {
     return this.http.get<IDepartment>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }

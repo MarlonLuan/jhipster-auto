@@ -24,6 +24,10 @@ export class RegionService {
     return this.http.put<IRegion>(`${this.resourceUrl}/${getRegionIdentifier(region) as string}`, region, { observe: 'response' });
   }
 
+  partialUpdate(region: IRegion): Observable<EntityResponseType> {
+    return this.http.patch<IRegion>(`${this.resourceUrl}/${getRegionIdentifier(region) as string}`, region, { observe: 'response' });
+  }
+
   find(id: string): Observable<EntityResponseType> {
     return this.http.get<IRegion>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }

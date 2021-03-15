@@ -48,14 +48,7 @@ public class TaskServiceImpl implements TaskService {
             .findById(taskDTO.getId())
             .map(
                 existingTask -> {
-                    if (taskDTO.getTitle() != null) {
-                        existingTask.setTitle(taskDTO.getTitle());
-                    }
-
-                    if (taskDTO.getDescription() != null) {
-                        existingTask.setDescription(taskDTO.getDescription());
-                    }
-
+                    taskMapper.partialUpdate(existingTask, taskDTO);
                     return existingTask;
                 }
             )

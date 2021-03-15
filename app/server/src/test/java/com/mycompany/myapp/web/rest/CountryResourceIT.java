@@ -280,7 +280,7 @@ class CountryResourceIT {
 
         restCountryMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedCountry.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedCountry))
@@ -310,7 +310,7 @@ class CountryResourceIT {
 
         restCountryMockMvc
             .perform(
-                patch(ENTITY_API_URL)
+                patch(ENTITY_API_URL_ID, partialUpdatedCountry.getId())
                     .with(csrf())
                     .contentType("application/merge-patch+json")
                     .content(TestUtil.convertObjectToJsonBytes(partialUpdatedCountry))
@@ -326,18 +326,74 @@ class CountryResourceIT {
 
     @Test
     @Transactional
-    void partialUpdateCountryShouldThrown() throws Exception {
-        // Update the country without id should throw
-        Country partialUpdatedCountry = new Country();
+    void patchNonExistingCountry() throws Exception {
+        int databaseSizeBeforeUpdate = countryRepository.findAll().size();
+        country.setId(UUID.randomUUID());
 
+        // Create the Country
+        CountryDTO countryDTO = countryMapper.toDto(country);
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restCountryMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, countryDTO.getId())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(countryDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Country in the database
+        List<Country> countryList = countryRepository.findAll();
+        assertThat(countryList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithIdMismatchCountry() throws Exception {
+        int databaseSizeBeforeUpdate = countryRepository.findAll().size();
+        country.setId(UUID.randomUUID());
+
+        // Create the Country
+        CountryDTO countryDTO = countryMapper.toDto(country);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
+        restCountryMockMvc
+            .perform(
+                patch(ENTITY_API_URL_ID, UUID.randomUUID())
+                    .with(csrf())
+                    .contentType("application/merge-patch+json")
+                    .content(TestUtil.convertObjectToJsonBytes(countryDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        // Validate the Country in the database
+        List<Country> countryList = countryRepository.findAll();
+        assertThat(countryList).hasSize(databaseSizeBeforeUpdate);
+    }
+
+    @Test
+    @Transactional
+    void patchWithMissingIdPathParamCountry() throws Exception {
+        int databaseSizeBeforeUpdate = countryRepository.findAll().size();
+        country.setId(UUID.randomUUID());
+
+        // Create the Country
+        CountryDTO countryDTO = countryMapper.toDto(country);
+
+        // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restCountryMockMvc
             .perform(
                 patch(ENTITY_API_URL)
                     .with(csrf())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(partialUpdatedCountry))
+                    .content(TestUtil.convertObjectToJsonBytes(countryDTO))
             )
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isMethodNotAllowed());
+
+        // Validate the Country in the database
+        List<Country> countryList = countryRepository.findAll();
+        assertThat(countryList).hasSize(databaseSizeBeforeUpdate);
     }
 
     @Test
